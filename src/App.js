@@ -102,7 +102,6 @@ function App() {
 
     return data;
   };
-
   const uploadImage = async (imageData) => {
     setMessage("Uploading Image...");
 
@@ -110,12 +109,22 @@ function App() {
       const nftstorage = new NFTStorage({
         token: process.env.REACT_APP_NFT_STORAGE_API_KEY,
       });
-      const { ipnft } = await nftstorage.store({
-        image: new File([imageData], "image.jpeg", { type: "image/jpeg" }),
-        name: name,
-        description: description,
-      });
 
+      const headers = {
+        Authorization: `Bearer ${process.env.REACT_APP_NFT_STORAGE_API_KEY}`,
+      };
+
+      const response = await axios.post(
+        "https://api.nft.storage/upload/",
+        {
+          image: new File([imageData], "image.jpeg", { type: "image/jpeg" }),
+          name: name,
+          description: description,
+        },
+        { headers }
+      );
+
+      const ipnft = response.data.ipnft;
       console.log("IPNFT:", ipnft);
 
       const url = `https://ipfs.io/ipfs/${ipnft}/metadata.json`;
@@ -145,6 +154,7 @@ function App() {
   return (
     <div>
       <Navigation account={account} setAccount={setAccount} />
+      <p> App.js to get started.</p>
 
       <div className="form">
         <form onSubmit={submitHandler}>
